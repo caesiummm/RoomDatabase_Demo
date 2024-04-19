@@ -38,11 +38,11 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
 
     // When user clicks on Save/Update button
     fun saveOrUpdate() {
-        val userFirstName = inputFirstName.value
-        val userLastName = inputLastName.value
-        val userName = inputUserName.value
-        val userPhoneNum = inputPhoneNum.value
-        val userEmail = inputEmail.value
+        val userFirstName = inputFirstName.value?.trim()
+        val userLastName = inputLastName.value?.trim()
+        val userName = inputUserName.value?.trim()
+        val userPhoneNum = inputPhoneNum.value?.trim()
+        val userEmail = inputEmail.value?.trim()
 
         // Input Validation
         val (isValid, inputValidatorMessage) = InputValidator.validateInput(userFirstName, userLastName, userName, userPhoneNum, userEmail)

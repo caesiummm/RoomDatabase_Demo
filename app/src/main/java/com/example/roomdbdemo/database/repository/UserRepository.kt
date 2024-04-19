@@ -26,4 +26,9 @@ class UserRepository(private val userDao: UserDao) {
     suspend fun deleteAll() : Int {
         return userDao.deleteAllUser()
     }
+
+    suspend fun isUserNameExists(userName: String): Boolean {
+        val count = userDao.getUserNameCount(userName)
+        return count > 0
+    }
 }

@@ -1,11 +1,10 @@
 package com.example.roomdbdemo.viewmodel
 
-import android.health.connect.datatypes.units.Length
-import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.roomdbdemo.InputValidator
 import com.example.roomdbdemo.database.entity.User
 import com.example.roomdbdemo.database.repository.UserRepository
 import com.example.roomdbdemo.event.UserEvent
@@ -24,7 +23,6 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
     val inputUserName = MutableLiveData<String?>()
     val inputPhoneNum = MutableLiveData<String?>()
     val inputEmail = MutableLiveData<String?>()
-    val listLiveData = MutableLiveData<List<User>>()
 
     val btnSaveOrUpdateText = MutableLiveData<String?>()
     val btnClearOrDeleteText = MutableLiveData<String?>()
@@ -38,24 +36,33 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
         btnClearOrDeleteText.value = "Clear All"
     }
 
+    // When user clicks on Save/Update button
     fun saveOrUpdate() {
-        if (isUpdateOrDelete) {
-            userToUpdateOrDelete.firstName = inputFirstName.value!!
-            userToUpdateOrDelete.lastName = inputLastName.value!!
-            userToUpdateOrDelete.userName = inputUserName.value!!
-            userToUpdateOrDelete.phone = inputPhoneNum.value!!
-            userToUpdateOrDelete.email = inputEmail.value!!
+        val userFirstName = inputFirstName.value
+        val userLastName = inputLastName.value
+        val userName = inputUserName.value
+        val userPhoneNum = inputPhoneNum.value
+        val userEmail = inputEmail.value
 
+        // Input Validation
+        val (isValid, inputValidatorMessage) = InputValidator.validateInput(userFirstName, userLastName, userName, userPhoneNum, userEmail)
+        if (!isValid) {
+            statusMessage.value = UserEvent(inputValidatorMessage!!)
+            return
+        }
+        //checkUserName(userName!!)
+
+        if (isUpdateOrDelete) {
+            userToUpdateOrDelete.apply {
+                this.firstName = userFirstName
+                this.lastName = userLastName
+                this.userName = userName
+                this.phone = userPhoneNum
+                this.email = userEmail
+            }
             update(userToUpdateOrDelete)
         } else {
-            val fName = inputFirstName.value!!
-            val lName = inputLastName.value!!
-            val uName = inputUserName.value!!
-            val phone = inputPhoneNum.value!!
-            val email = inputEmail.value!!
-
-            add(User(0, fName, lName, uName, phone, email))
-
+            add(User(0, userFirstName, userLastName, userName, userPhoneNum, userEmail))
             inputFirstName.value = ""
             inputLastName.value = ""
             inputUserName.value = ""
@@ -64,12 +71,14 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
         }
     }
 
+    // When user clicks on Clear/Delete button
     fun clearOrDelete() {
         if (isUpdateOrDelete) {
             delete(userToUpdateOrDelete)
         } else clearAll()
     }
 
+    // Insert User
     private fun add(user: User) = viewModelScope.launch(Dispatchers.IO){
         val newRowId = userRepository.add(user)
 
@@ -82,10 +91,7 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
         }
     }
 
-    fun addList(users: List<User>) = viewModelScope.launch(Dispatchers.IO) {
-        userRepository.add(users)
-    }
-
+    // Update User
     private fun update(user: User) = viewModelScope.launch(Dispatchers.IO) {
         val numOfRows = userRepository.update(user)
 
@@ -102,13 +108,14 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
                 userToUpdateOrDelete = user
                 btnSaveOrUpdateText.value = "Save"
                 btnClearOrDeleteText.value = "Clear All"
-                statusMessage.value = UserEvent("$numOfRows row(s) updated")
+                statusMessage.value = UserEvent("${user.userName}'s info updated")
             } else {
                 statusMessage.value = UserEvent("An error occurred!")
             }
         }
     }
 
+    // Delete User
     private fun delete(user: User) = viewModelScope.launch(Dispatchers.IO) {
         val numOfUserDeleted = userRepository.delete(user)
 
@@ -132,6 +139,7 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
         }
     }
 
+    // Delete All Users
     private fun clearAll() = viewModelScope.launch(Dispatchers.IO) {
         val numOfRowsDeleted = userRepository.deleteAll()
 
@@ -144,6 +152,18 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
 
         }
 
+    }
+
+    private fun checkUserName(userName: String) {
+        viewModelScope.launch {
+            val isExists = userRepository.isUserNameExists(userName)
+            if (isExists) {
+                withContext(Dispatchers.Main) {
+                    statusMessage.value = UserEvent("Username already existed")
+                    return@withContext
+                }
+            }
+        }
     }
 
     fun initUpdateAndDelete(user: User) {

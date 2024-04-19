@@ -33,4 +33,7 @@ interface UserDao {
 
     @Query("SELECT * FROM user_info")
     fun getAllUsers(): LiveData<List<User>>
+
+    @Query("SELECT COUNT(*) FROM user_info WHERE userName = :userName")
+    suspend fun getUserNameCount(userName: String): Int
 }

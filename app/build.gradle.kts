@@ -47,9 +47,6 @@ android {
 }
 
 dependencies {
-    val lifecycle_version = "2.7.0"
-    val room_version = "2.6.1"
-
     // ViewModel
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     // LiveData
@@ -61,6 +58,12 @@ dependencies {
     kapt(libs.androidx.room.compiler)
     // optional - Kotlin Extensions and Coroutines support for Room
     implementation(libs.androidx.room.ktx)
+    // Coil - Image Loading Library
+    implementation(libs.coil)
+    // Permission Request
+    implementation(libs.dexter)
+    // Access composable APIs built on top of Activity (e.g. Photo Picker)
+    implementation(libs.androidx.activity.ktx)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

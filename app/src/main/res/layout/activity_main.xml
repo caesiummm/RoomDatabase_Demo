@@ -26,10 +26,13 @@
             android:layout_height="100dp"
             android:layout_margin="20dp"
             android:layout_gravity="center"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="@drawable/ic_image_placeholder"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintEnd_toEndOf="parent" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fabPhotoPicker"
@@ -38,6 +41,7 @@
             android:layout_margin="10dp"
             app:fabCustomSize="40dp"
             android:src="@drawable/ic_edit"
+            android:backgroundTint="#f2e9e4"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -46,16 +50,20 @@
         android:id="@+id/edtFirstName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="16sp"
         android:layout_marginBottom="8dp"
+        android:lines="1"
+        android:singleLine="true"
         android:ems="10"
+        android:hint="First name"
         android:text="@={userViewModel.inputFirstName}"
-        android:hint="First name" />
+        android:textSize="16sp" />
 
     <EditText
         android:id="@+id/edtLastName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:lines="1"
+        android:singleLine="true"
         android:textSize="16sp"
         android:layout_marginBottom="8dp"
         android:ems="10"
@@ -66,6 +74,8 @@
         android:id="@+id/edtUserName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:lines="1"
+        android:singleLine="true"
         android:textSize="16sp"
         android:layout_marginBottom="8dp"
         android:ems="10"
@@ -77,6 +87,8 @@
         android:id="@+id/edtPhoneNum"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:lines="1"
+        android:singleLine="true"
         android:textSize="16sp"
         android:layout_marginBottom="8dp"
         android:ems="10"
@@ -89,6 +101,8 @@
         android:id="@+id/edtEmail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:lines="1"
+        android:singleLine="true"
         android:textSize="16sp"
         android:layout_marginBottom="8dp"
         android:ems="10"
@@ -109,6 +123,7 @@
             android:layout_width="wrap_content"
             android:layout_weight="1"
             android:layout_marginEnd="20dp"
+            android:backgroundTint="#14213d"
             android:text="@={userViewModel.btnSaveOrUpdateText}"
             android:onClick="@{()->userViewModel.saveOrUpdate()}"
             android:textStyle="bold"
@@ -119,6 +134,7 @@
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:layout_weight="1"
+            android:backgroundTint="#14213d"
             android:text="@={userViewModel.btnClearOrDeleteText}"
             android:onClick="@{()->userViewModel.clearOrDelete()}"
             android:textStyle="bold"

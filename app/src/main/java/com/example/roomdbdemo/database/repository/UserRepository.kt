@@ -11,9 +11,9 @@ class UserRepository(private val userDao: UserDao) {
         return userDao.addUser(user)
     }
 
-    suspend fun add(users: List<User>) {
-        userDao.addUser(users)
-    }
+//    suspend fun add(users: List<User>) {
+//        userDao.addUser(users)
+//    }
 
     suspend fun update(user: User) : Int {
         return userDao.updateUser(user)

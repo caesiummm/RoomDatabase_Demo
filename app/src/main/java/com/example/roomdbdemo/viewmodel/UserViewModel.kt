@@ -23,6 +23,7 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
     val inputUserName = MutableLiveData<String?>()
     val inputPhoneNum = MutableLiveData<String?>()
     val inputEmail = MutableLiveData<String?>()
+    val inputPortrait = MutableLiveData<String?>()
 
     val btnSaveOrUpdateText = MutableLiveData<String?>()
     val btnClearOrDeleteText = MutableLiveData<String?>()
@@ -43,6 +44,7 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
         val userName = inputUserName.value?.trim()
         val userPhoneNum = inputPhoneNum.value?.trim()
         val userEmail = inputEmail.value?.trim()
+        val userPortrait = inputPortrait.value
 
         // Input Validation
         val (isValid, inputValidatorMessage) = InputValidator.validateInput(userFirstName, userLastName, userName, userPhoneNum, userEmail)
@@ -59,15 +61,17 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
                 this.userName = userName
                 this.phone = userPhoneNum
                 this.email = userEmail
+                this.portrait = userPortrait
             }
             update(userToUpdateOrDelete)
         } else {
-            add(User(0, userFirstName, userLastName, userName, userPhoneNum, userEmail))
+            add(User(0, userFirstName, userLastName, userName, userPhoneNum, userEmail, userPortrait))
             inputFirstName.value = ""
             inputLastName.value = ""
             inputUserName.value = ""
             inputPhoneNum.value = ""
             inputEmail.value = ""
+            inputPortrait.value = ""
         }
     }
 
@@ -103,6 +107,7 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
                 inputUserName.value = ""
                 inputPhoneNum.value = ""
                 inputEmail.value = ""
+                inputPortrait.value = ""
 
                 isUpdateOrDelete = false
                 userToUpdateOrDelete = user
@@ -127,6 +132,7 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
                 inputUserName.value = ""
                 inputPhoneNum.value = ""
                 inputEmail.value = ""
+                inputPortrait.value = ""
 
                 isUpdateOrDelete = false
                 userToUpdateOrDelete = user
@@ -134,7 +140,7 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
                 btnClearOrDeleteText.value = "Clear All"
                 statusMessage.value = UserEvent("$numOfUserDeleted user deleted")
             } else {
-                statusMessage.value = UserEvent("An error occurred!")
+                statusMessage.value = UserEvent("No users registered")
             }
         }
     }
@@ -154,17 +160,17 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
 
     }
 
-    private fun checkUserName(userName: String) {
-        viewModelScope.launch {
-            val isExists = userRepository.isUserNameExists(userName)
-            if (isExists) {
-                withContext(Dispatchers.Main) {
-                    statusMessage.value = UserEvent("Username already existed")
-                    return@withContext
-                }
-            }
-        }
-    }
+//    private fun checkUserName(userName: String) {
+//        viewModelScope.launch {
+//            val isExists = userRepository.isUserNameExists(userName)
+//            if (isExists) {
+//                withContext(Dispatchers.Main) {
+//                    statusMessage.value = UserEvent("Username already existed")
+//                    return@withContext
+//                }
+//            }
+//        }
+//    }
 
     fun initUpdateAndDelete(user: User) {
         inputFirstName.value = user.firstName
@@ -172,6 +178,7 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
         inputUserName.value = user.userName
         inputPhoneNum.value = user.phone
         inputEmail.value = user.email
+        inputPortrait.value = user.portrait
 
         isUpdateOrDelete = true
         userToUpdateOrDelete = user

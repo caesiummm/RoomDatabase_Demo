@@ -5,6 +5,8 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
+import coil.load
+import coil.transform.CircleCropTransformation
 import com.example.roomdbdemo.R
 import com.example.roomdbdemo.database.entity.User
 import com.example.roomdbdemo.databinding.UserInfoItemViewBinding
@@ -38,6 +40,13 @@ class UserListAdapter(private val userList: List<User>, private val clickListene
             binding.tvUserName.text = user.userName
             binding.tvPhoneNum.text = prefix + user.phone
             binding.tvEmail.text = user.email
+            binding.ivPortrait.load(user.portrait) {
+                Log.i("UserListAdapter", user.portrait.toString())
+                crossfade(true)
+                crossfade(400)
+                placeholder(R.drawable.ic_image_placeholder)
+                transformations(CircleCropTransformation())
+            }
 
             binding.clUserItemLayout.setOnClickListener {
                 clickListener(user)

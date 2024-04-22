@@ -8,7 +8,7 @@
     android:layout_height="wrap_content"
     android:padding="12dp"
     android:layout_marginBottom="8dp"
-    android:background="@color/cardview_light_background">
+    android:background="@drawable/rounded_cardview">
 
     <TextView
         android:id="@+id/tvUserName"
@@ -63,6 +63,7 @@
         android:id="@+id/ivPortrait"
         android:layout_width="100dp"
         android:layout_height="100dp"
+        android:src="@drawable/ic_image_placeholder"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"/>

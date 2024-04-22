@@ -11,8 +11,10 @@ import com.example.roomdbdemo.R
 import com.example.roomdbdemo.database.entity.User
 import com.example.roomdbdemo.databinding.UserInfoItemViewBinding
 
-class UserListAdapter(private val userList: List<User>, private val clickListener:(User) -> Unit)
-    : RecyclerView.Adapter<UserListAdapter.UserViewHolder>() {
+class UserListAdapter(private val clickListener:(User) -> Unit)
+    : RecyclerView.Adapter<UserViewHolder>() {
+
+    private val userList = ArrayList<User>()
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
@@ -32,27 +34,32 @@ class UserListAdapter(private val userList: List<User>, private val clickListene
         return userList.size
     }
 
-    class UserViewHolder(private val binding: UserInfoItemViewBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(user: User, clickListener:(User) -> Unit) {
-            val prefix = "+60"
-            binding.tvFirstName.text = user.firstName
-            binding.tvLastName.text = user.lastName
-            binding.tvUserName.text = user.userName
-            binding.tvPhoneNum.text = prefix + user.phone
-            binding.tvEmail.text = user.email
-            binding.ivPortrait.load(user.portrait) {
-                Log.i("UserListAdapter", user.portrait.toString())
-                crossfade(true)
-                crossfade(400)
-                placeholder(R.drawable.ic_image_placeholder)
-                transformations(CircleCropTransformation())
-            }
-
-            binding.clUserItemLayout.setOnClickListener {
-                clickListener(user)
-            }
-        }
+    fun setList(users: List<User>) {
+        userList.clear()
+        userList.addAll(users)
     }
 
+}
+
+class UserViewHolder(private val binding: UserInfoItemViewBinding) : RecyclerView.ViewHolder(binding.root) {
+    fun bind(user: User, clickListener:(User) -> Unit) {
+        val prefix = "+60"
+        binding.tvFirstName.text = user.firstName
+        binding.tvLastName.text = user.lastName
+        binding.tvUserName.text = user.userName
+        binding.tvPhoneNum.text = prefix + user.phone
+        binding.tvEmail.text = user.email
+        binding.ivPortrait.load(user.portrait) {
+            Log.i("UserListAdapter", user.portrait.toString())
+            crossfade(true)
+            crossfade(400)
+            placeholder(R.drawable.ic_image_placeholder)
+            transformations(CircleCropTransformation())
+        }
+
+        binding.clUserItemLayout.setOnClickListener {
+            clickListener(user)
+        }
+    }
 }
 

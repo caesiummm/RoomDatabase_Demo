@@ -1,27 +1,22 @@
 package com.example.roomdbdemo
 
-import android.app.Activity
-import android.content.Intent
-import android.graphics.Bitmap
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
-import android.provider.MediaStore
 import android.util.Log
-import android.view.RoundedCorner
-import android.view.View
 import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import coil.load
+import coil.imageLoader
 import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
-import coil.transform.RoundedCornersTransformation
 import com.example.roomdbdemo.adapter.UserListAdapter
 import com.example.roomdbdemo.database.UserDatabase
 import com.example.roomdbdemo.database.entity.User
@@ -30,15 +25,17 @@ import com.example.roomdbdemo.databinding.ActivityMainBinding
 import com.example.roomdbdemo.viewmodel.UserViewModel
 import com.example.roomdbdemo.viewmodel.UserViewModelFactory
 import java.io.File
+import java.time.LocalDateTime
 
+@RequiresApi(Build.VERSION_CODES.O)
 class MainActivity : AppCompatActivity() {
     private val TAG = "MainActivity"
     private lateinit var binding: ActivityMainBinding
     private lateinit var userViewModel: UserViewModel
     private lateinit var adapter: UserListAdapter
-    private val CAMERA_REQUEST_CODE = 2000
-    private lateinit var imageUrl: Uri
-
+//    private val CAMERA_REQUEST_CODE = 2000
+    private lateinit var imageUri: Uri
+    private lateinit var timestamp: LocalDateTime
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,14 +50,15 @@ class MainActivity : AppCompatActivity() {
         binding.userViewModel = userViewModel
         binding.lifecycleOwner = this
 
+
         initRv()
 
         // Display Toast message according to action observed
-        userViewModel.message.observe(this, Observer { it ->
+        userViewModel.message.observe(this) { it ->
             it.getContentIfNotHandled()?.let {
                 Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
             }
-        })
+        }
 
         // Actions taken when home portrait changes
         userViewModel.inputPortrait.observe(this) { uri ->
@@ -85,30 +83,26 @@ class MainActivity : AppCompatActivity() {
 
 
         // Registers camera activity
-        val cameraPicker = registerForActivityResult(ActivityResultContracts.TakePicture()) {
-            Log.d(TAG, "Binding $imageUrl - captured photos")
-//            loadPortraitImage(imageUrl)
-//            binding.ivImageView.setImageURI(null)
-//            binding.ivImageView.setImageURI(imageUrl)
-            userViewModel.inputPortrait.value = imageUrl.toString() // Set photo uri from camera
+        val takeImageResult = registerForActivityResult(ActivityResultContracts.TakePicture()) {
+            Log.d(TAG, "Binding $imageUri - captured photos")
+            userViewModel.inputPortrait.value = imageUri.toString() // Set photo uri from camera
         }
 
         binding.fabPhotoPicker.setOnClickListener {
             Log.d(TAG, "Taking photo")
-            imageUrl = createImageUri()
-            Log.d(TAG, "$imageUrl created")
-            cameraPicker.launch(imageUrl)
+            imageUri = createImageUri()
+            takeImageResult.launch(imageUri)
         }
     }
 
     // Instead of creating a new adapter object for every new update,
     // reuse the initially created adapter object
     private fun displayUsersList() {
-        userViewModel.users.observe(this, Observer {
+        userViewModel.users.observe(this) {
             Log.i(TAG, it.toString())
             adapter.setList(it)
             adapter.notifyDataSetChanged()
-        })
+        }
     }
 
     private fun initRv() {
@@ -125,16 +119,25 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun loadPortraitImage(uri: String?) {
-        binding.ivImageView.load(uri) {
-            crossfade(true)
-            crossfade(400)
-            placeholder(R.drawable.ic_image_placeholder)
-            transformations(CircleCropTransformation())
-        }
+        val request = ImageRequest.Builder(this)
+            .data(uri)
+            .crossfade(true)
+            .placeholder(R.drawable.ic_image_placeholder)
+            .transformations(CircleCropTransformation())
+            .target(binding.ivImageView)
+            .build()
+        imageLoader.enqueue(request)
+//        binding.ivImageView.load(uri) {
+//            crossfade(true)
+//            crossfade(400)
+//            placeholder(R.drawable.ic_image_placeholder)
+//            transformations(CircleCropTransformation())
+//        }
     }
-
     private fun createImageUri() : Uri {
-        val image = File(filesDir, "camera_photos.png")
+        timestamp = LocalDateTime.now()
+        Log.d(TAG, "Timestamp: $timestamp")
+        val image = File(filesDir, "camera_photo_$timestamp.png")
         val uri = FileProvider.getUriForFile(this, "com.example.roomdbdemo.FileProvider", image)
         Log.d(TAG, "Uri: $uri")
         return uri
